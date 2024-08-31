@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+
+    environment {
+        STAGING_ENVIRONMENT = 'Staging-EC2'
+        PRODUCTION_ENVIRONMENT = 'Production-EC2'
+        RECIPIENTS = 'chspreddy018@gmail.com'
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo "Task: Compile and package the code using a build automation tool."
+                echo "Tool: Maven is used to build and package the application."
+            }
+        }
+        
+        stage('Unit and Integration Tests') {
+            steps {
+                echo "Task: Run unit tests to ensure code functions as expected, and run integration tests to verify the interaction between different components."
+                echo "Tools: JUnit for unit testing and TestNG for integration testing."
+            }
+            post {
+                always {
+                    echo "Sending email notification with the status of Unit and Integration Tests."
+                    mail to: "${env.RECIPIENTS}",
+                         subject: "Build ${currentBuild.fullDisplayName} - Unit and Integration Tests",
+                         body: "The result of Unit and Integration Tests is: ${currentBuild.currentResult}. Logs can be viewed in the Jenkins console output."
+                }
+            }
+        }
+        
+        stage('Code Analysis') {
+            steps {
+                echo "Task: Analyze the code to ensure it meets industry standards."
+                echo "Tool: SonarQube is used to perform static code analysis."
+            }
+        }
+        
+        stage('Security Scan') {
+            steps {
+                echo "Task: Perform a security scan to identify vulnerabilities in the code."
+                echo "Tool: OWASP ZAP (Zed Attack Proxy) is used for security scanning."
+            }
+            post {
+                always {
+                    echo "Sending email notification with the status of Security Scan."
+                    mail to: "${env.RECIPIENTS}",
+                         subject: "Build ${currentBuild.fullDisplayName} - Security Scan",
+                         body: "The result of Security Scan is: ${currentBuild.currentResult}. Logs can be viewed in the Jenkins console output."
+                }
+            }
+        }
+        
+        stage('Deploy to Staging') {
+            steps {
+                echo "Task: Deploy the application to a staging environment."
+                echo "Tool: AWS CLI is used to deploy the application to an AWS EC2 instance."
+            }
+        }
+        
+        stage('Integration Tests on Staging') {
+            steps {
+                echo "Task: Run integration tests in the staging environment to ensure the application functions as expected."
+                echo "Tool: Postman is used for API testing and Selenium for UI testing in the staging environment."
+            }
+        }
+        
+        stage('Deploy to Production') {
+            steps {
+                echo "Task: Deploy the application to the production environment."
+                echo "Tool: AWS CLI is used to deploy the application to the production AWS EC2 instance."
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo "Sending final notification email with the overall build status."
+            mail to: "${env.RECIPIENTS}",
+                 subject: "Build ${currentBuild.fullDisplayName} - Final Status",
+                 body: "The final result of the build is: ${currentBuild.currentResult}. Logs can be viewed in the Jenkins console output."
+        }
+    }
+}
