@@ -6,7 +6,6 @@ pipeline {
         PRODUCTION_ENVIRONMENT = 'Production-EC2'
         RECIPIENTS = 'chspreddy018@gmail.com'
     }
-
     stages {
         stage('Build') {
             steps {
