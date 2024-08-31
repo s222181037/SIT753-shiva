@@ -12,7 +12,7 @@ pipeline {
             steps {
                 echo "Task: Compile and package the code using a build automation tool."
                 echo "Tool: Maven is used to build and package the application."
-                git branch: 'main', url: 'https://github.com/s222181037/SIT753-shiva'
+                git branch: 'main', url: 'https://github.com/s222181037/SIT753-shiva/'
             }
         }
         
