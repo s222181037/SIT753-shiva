@@ -6,7 +6,7 @@ pipeline {
         TESTING_ENVIRONMENT = 'QA test1_environment'
         PRODUCTION_ENVIRONMENT = 'Shiva'
     }
-    
+
     stages {
         stage('Build') {
             steps {
