@@ -1,86 +1,82 @@
 pipeline {
     agent any
-
+    
     environment {
-        STAGING_ENVIRONMENT = 'Staging-EC2'
-        PRODUCTION_ENVIRONMENT = 'Production-EC2'
-        RECIPIENTS = 'chspreddy018@gmail.com'
+        DIRECTORY_PATH = '/path/folder/code'
+        TESTING_ENVIRONMENT = 'QA test1_environment'
+        PRODUCTION_ENVIRONMENT = 'Shiva'
     }
-
+    
     stages {
         stage('Build') {
             steps {
-                echo "Task: Compile and package the code using a build automation tool."
-                echo "Tool: Maven is used to build and package the application."
-                git branch: 'main', url: 'https://github.com/s222181037/SIT753-shiva/'
+                echo "Compiling the code and generating necessary artifacts and using build tools like maven and Gradle"
+                git branch: 'main', url: 'https://github.com/s222181037/SIT753-shiva'
             }
         }
-        
-        stage('Unit and Integration Tests') {
+        stage('Test') {
             steps {
-                echo "Task: Run unit tests to ensure code functions as expected, and run integration tests to verify the interaction between different components."
-                echo "Tools: JUnit for unit testing and TestNG for integration testing."
+                echo " For running tests we can use tools like Selenium , webdriver.io, jmeter for performance tests"
             }
             post {
-                always {
-                    echo "Sending email notification with the status of Unit and Integration Tests."
-                    mail to: "${env.RECIPIENTS}",
-                         subject: "Build ${currentBuild.fullDisplayName} - Unit and Integration Tests",
-                         body: "The result of Unit and Integration Tests is: ${currentBuild.currentResult}. Logs can be viewed in the Jenkins console output."
+                success {
+                    emailext (
+                        to: 'chspreddy018@gmail.com',
+                        subject: "Testing of latest commit  on : Pipeline ${currentBuild.fullDisplayName} ",
+                        body: "Testing of  ${env.TESTING_ENVIRONMENT} in ${currentBuild.fullDisplayName} has completed. \n\n Check console output at: ${env.BUILD_URL}", 
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext (
+                        to: 'chspreddy018@gmail.com',
+                        subject: "Testing of latest commite: Pipeline ${currentBuild.fullDisplayName}",
+                        body: "Testing of latest commit ${env.TESTING_ENVIRONMENT} in ${currentBuild.fullDisplayName} has failed.",
+                        attachLog: true
+                    )
                 }
             }
         }
-        
         stage('Code Analysis') {
             steps {
-                echo "Task: Analyze the code to ensure it meets industry standards."
-                echo "Tool: SonarQube is used to perform static code analysis."
+                echo "Checking the quality of the code and this is done by tools like SonarQube, ESLint"
             }
         }
-        
         stage('Security Scan') {
             steps {
-                echo "Task: Perform a security scan to identify vulnerabilities in the code."
-                echo "Tool: OWASP ZAP (Zed Attack Proxy) is used for security scanning."
+                echo "Security scan is used for scanning code for potential vulnerabilities and tools are Acunetix, Burp Suite "
             }
-            post {
-                always {
-                    echo "Sending email notification with the status of Security Scan."
-                    mail to: "${env.RECIPIENTS}",
-                         subject: "Build ${currentBuild.fullDisplayName} - Security Scan",
-                         body: "The result of Security Scan is: ${currentBuild.currentResult}. Logs can be viewed in the Jenkins console output."
+			post {
+                success {
+                    emailext (
+                        to: 'chspreddy018@gmail.com',
+                        subject: "Security scan is completed: Pipeline ${currentBuild.fullDisplayName}",
+                        body: "Security scan in   in ${currentBuild.fullDisplayName} has completed . \n\n Check console output at: ${env.BUILD_URL}", 
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext (
+                        to: 'chspredddy018@gmail.com',
+                        subject: "Security scan failure: Pipeline ${currentBuild.fullDisplayName}",
+                        body: "Security scan in ${currentBuild.fullDisplayName} has failed.",
+                        attachLog: true
+                    )
                 }
             }
         }
-        
-        stage('Deploy to Staging') {
+        stage('Integration Tests') {
             steps {
-                echo "Task: Deploy the application to a staging environment."
-                echo "Tool: AWS CLI is used to deploy the application to an AWS EC2 instance."
+                script {
+                    echo "This is to check on how the system is performing when system are integrated and tools are postman , Junit  "
+                    sleep time: 10, unit: 'SECONDS'
+                }
             }
         }
-        
-        stage('Integration Tests on Staging') {
-            steps {
-                echo "Task: Run integration tests in the staging environment to ensure the application functions as expected."
-                echo "Tool: Postman is used for API testing and Selenium for UI testing in the staging environment."
-            }
-        }
-        
         stage('Deploy to Production') {
             steps {
-                echo "Task: Deploy the application to the production environment."
-                echo "Tool: AWS CLI is used to deploy the application to the production AWS EC2 instance."
+                echo "Deploying the code to production servers and server instance like AWS EC2, AZure , GCP  " 
             }
-        }
-    }
-    
-    post {
-        always {
-            echo "Sending final notification email with the overall build status."
-            mail to: "${env.RECIPIENTS}",
-                 subject: "Build ${currentBuild.fullDisplayName} - Final Status",
-                 body: "The final result of the build is: ${currentBuild.currentResult}. Logs can be viewed in the Jenkins console output."
         }
     }
 }
